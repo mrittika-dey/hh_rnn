@@ -1,0 +1,53 @@
+load_file("nrngui.hoc") 
+
+create soma
+access soma
+
+soma diam = 18.8
+soma L = 18.8
+soma Ra = 123.0
+
+soma insert hh
+stdur=100
+stamp = 0
+
+objectvar stim
+soma stim = new IClamp(0.5)
+
+stim.del = 50
+stim.dur = stdur    //100//1
+stim.amp = stamp
+
+tstop = 250
+
+// data storage
+objref vec
+objectvar f
+vec = new Vector() 
+f = new File()
+f.wopen("camp_proj.txt")
+
+newPlotV()
+
+// updating stim.amp
+proc stim_inc(){
+	for (stamp=0; stamp<=0.5; stamp+=0.025){
+		stim.amp=stamp
+		f.printf("%g,", stamp)		//print amplitudes
+	}
+	f.printf("\n")
+	for (stamp=0; stamp<=0.5; stamp+=0.025){
+		stim.amp = stamp
+		finitialize()
+		while(t<tstop){
+			fadvance()
+			soma{
+				f.printf("%g,", v)
+			}
+		}
+		f.printf("\n")
+	}
+}
+stim_inc()
+f.close()
+nrncontrolmenu()
